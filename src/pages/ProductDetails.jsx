@@ -274,7 +274,7 @@ const ProductDetails = () => {
         {/* Colors */}
         {product.colors && product.colors.length > 0 && (
           <div className="stagger-item" style={{ marginTop: "0.5rem" }}>
-            <h3
+            <h2
               style={{
                 fontSize: "1rem",
                 fontWeight: 700,
@@ -285,7 +285,7 @@ const ProductDetails = () => {
               }}
             >
               Available Colors
-            </h3>
+            </h2>
             <div style={{ display: "flex", gap: "1rem" }}>
               {product.colors.map((color, idx) => (
                 <div
@@ -324,7 +324,7 @@ const ProductDetails = () => {
               marginBottom: "1.5rem",
             }}
           >
-            <h3
+            <h2
               style={{
                 fontSize: "1rem",
                 fontWeight: 700,
@@ -334,7 +334,7 @@ const ProductDetails = () => {
               }}
             >
               Select Size
-            </h3>
+            </h2>
           </div>
           <div
             className="product-size-grid"

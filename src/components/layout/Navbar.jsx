@@ -135,6 +135,7 @@ const Navbar = () => {
           <Link
             to="/wishlist"
             className="cursor-hover"
+            aria-label="Wishlist"
             style={{
               background: "none",
               border: "none",
@@ -171,6 +172,7 @@ const Navbar = () => {
           <Link
             to="/cart"
             className="cursor-hover"
+            aria-label="Cart"
             style={{
               background: "none",
               border: "none",

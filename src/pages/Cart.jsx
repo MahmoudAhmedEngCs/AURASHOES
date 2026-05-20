@@ -125,7 +125,7 @@ const Cart = () => {
                         className="cursor-hover"
                         style={{ textDecoration: "none", color: "inherit" }}
                       >
-                        <h3
+                        <h2
                           className="font-syne"
                           style={{
                             fontSize: "1.5rem",
@@ -134,7 +134,7 @@ const Cart = () => {
                           }}
                         >
                           {item.title}
-                        </h3>
+                        </h2>
                       </Link>
                       <div
                         style={{

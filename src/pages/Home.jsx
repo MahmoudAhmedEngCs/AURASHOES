@@ -146,7 +146,7 @@ const Home = () => {
         {/* Right Visual Column */}
         <div className="hero-visual">
           <GameCard
-            imageSrc="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600&auto=format&fit=crop"
+            imageSrc="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=70&w=550&auto=format&fit=crop"
             title="Air Jordan 1 High"
             subtitle="Retro / Classic"
             speed={0.04}
@@ -155,7 +155,7 @@ const Home = () => {
             fetchPriority="high"
           />
           <GameCard
-            imageSrc="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=450&auto=format&fit=crop"
+            imageSrc="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=70&w=350&auto=format&fit=crop"
             title="Nike Dunk Low"
             subtitle="Limited Edition"
             speed={-0.02}

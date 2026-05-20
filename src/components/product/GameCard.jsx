@@ -119,12 +119,12 @@ const GameCard = ({
             color: "white",
           }}
         >
-          <h3
+          <h2
             className="font-syne"
             style={{ fontSize: "1.25rem", fontWeight: 700, margin: 0 }}
           >
             {title}
-          </h3>
+          </h2>
           <p
             style={{
               fontSize: "0.875rem",

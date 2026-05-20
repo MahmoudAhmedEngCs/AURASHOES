@@ -157,7 +157,7 @@ function App() {
                 <Navbar />
 
                 {/* The Routes */}
-                <div style={{ flexGrow: 1 }}>
+                <main id="main-content" style={{ flexGrow: 1, pointerEvents: "auto" }}>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                       <Route path="/" element={<Home />} />
@@ -168,7 +168,7 @@ function App() {
                       <Route path="/wishlist" element={<Wishlist />} />
                     </Routes>
                   </Suspense>
-                </div>
+                </main>
               </div>
 
               {/* Global Overlays */}

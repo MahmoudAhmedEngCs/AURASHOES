@@ -109,12 +109,12 @@ const ProductGridCard = ({ product }) => {
               marginBottom: "0.5rem",
             }}
           >
-            <h3
+            <h2
               className="font-syne"
               style={{ fontSize: "1.25rem", fontWeight: 700, margin: 0 }}
             >
               {product.title}
-            </h3>
+            </h2>
             <span style={{ fontWeight: 600, fontSize: "1.125rem" }}>
               ${product.price}
             </span>

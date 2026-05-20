@@ -101,7 +101,7 @@ export const seedProducts = async () => {
           item.image ||
           item.thumbnail ||
           item.imageUrl ||
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=70&w=600&auto=format&fit=crop",
         category: item.category || "Lifestyle",
         colors: item.colors
           ? item.colors
