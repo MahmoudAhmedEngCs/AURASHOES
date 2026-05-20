@@ -1,3 +1,4 @@
+// Firebase app core is tiny (~15KB) - safe to load synchronously
 import { initializeApp } from 'firebase/app';
 
 // Your web app's Firebase configuration
@@ -11,10 +12,10 @@ const firebaseConfig = {
   measurementId: "G-J7FRYT3D8P"
 };
 
-// Initialize Firebase
+// Initialize Firebase app only (no auth, no firestore yet)
 const app = initializeApp(firebaseConfig);
 
-// Lazy-loaded auth and firestore to avoid blocking the critical path
+// Lazy singletons - only loaded when first needed
 let _auth = null;
 let _googleProvider = null;
 let _db = null;
@@ -35,10 +36,3 @@ export const getDbInstance = async () => {
   }
   return _db;
 };
-
-// Synchronous getters for already-initialized instances (used after first load)
-export { _auth as auth, _googleProvider as googleProvider, _db as db };
-
-// Initialize eagerly in background so they're ready when needed
-const _initPromise = Promise.all([getAuthInstance(), getDbInstance()]);
-export const firebaseReady = _initPromise;

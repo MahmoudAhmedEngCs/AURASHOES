@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import ProductGridCard from "../components/product/ProductGridCard";
-import { getProductsPage } from "../services/db";
 import gsap from "gsap";
 
 const PAGE_SIZE = 8;
@@ -16,6 +15,7 @@ const Store = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const { getProductsPage } = await import("../services/db");
       const data = await getProductsPage(PAGE_SIZE);
       setProducts(data.products);
       setLastDoc(data.lastDoc);
@@ -28,6 +28,7 @@ const Store = () => {
   const handleLoadMore = async () => {
     if (!hasMore || loadingMore) return;
     setLoadingMore(true);
+    const { getProductsPage } = await import("../services/db");
     const data = await getProductsPage(PAGE_SIZE, lastDoc);
     setProducts((prev) => [...prev, ...data.products]);
     setLastDoc(data.lastDoc);

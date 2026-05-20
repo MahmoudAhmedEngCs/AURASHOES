@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
-import { getUserData, updateUserWishlist } from '../services/db';
 import toast from 'react-hot-toast';
 
 const WishlistContext = createContext();
@@ -16,6 +15,7 @@ export const WishlistProvider = ({ children }) => {
   useEffect(() => {
     const loadWishlist = async () => {
       if (user) {
+        const { getUserData } = await import('../services/db');
         const data = await getUserData(user.uid);
         setWishlistItems(data.wishlistItems || []);
       } else {
@@ -26,36 +26,36 @@ export const WishlistProvider = ({ children }) => {
     loadWishlist();
   }, [user]);
 
-  const saveWishlist = async (newWishlist) => {
-    setWishlistItems(newWishlist);
-    if (user) {
-      await updateUserWishlist(user.uid, newWishlist);
-    }
-  };
-
-  const toggleWishlist = (product) => {
+  const toggleWishlist = useCallback((product) => {
     if (!user) {
       toast.error("You must be logged in to save favorites.");
       window.location.href = '/login';
       return;
     }
 
-    const isExist = wishlistItems.find(item => item.id === product.id);
-    let newWishlist;
-    if (isExist) {
-      toast.success("Removed from wishlist.");
-      newWishlist = wishlistItems.filter(item => item.id !== product.id);
-    } else {
-      toast.success("Added to wishlist!");
-      newWishlist = [...wishlistItems, product];
-    }
-    
-    saveWishlist(newWishlist);
-  };
+    setWishlistItems(prev => {
+      const isExist = prev.find(item => item.id === product.id);
+      let newWishlist;
+      if (isExist) {
+        toast.success("Removed from wishlist.");
+        newWishlist = prev.filter(item => item.id !== product.id);
+      } else {
+        toast.success("Added to wishlist!");
+        newWishlist = [...prev, product];
+      }
+      
+      // Save in background
+      import('../services/db').then(({ updateUserWishlist }) => {
+        if (user) updateUserWishlist(user.uid, newWishlist);
+      });
+      
+      return newWishlist;
+    });
+  }, [user]);
 
-  const isInWishlist = (productId) => {
+  const isInWishlist = useCallback((productId) => {
     return wishlistItems.some(item => item.id === productId);
-  };
+  }, [wishlistItems]);
 
   const wishlistCount = wishlistItems.length;
 
