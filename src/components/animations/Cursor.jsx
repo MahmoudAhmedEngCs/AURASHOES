@@ -1,28 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 
 const Cursor = () => {
-  const [enabled, setEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(true);
   const cursorRef = useRef(null);
   const positionRef = useRef({ x: -100, y: -100 });
   const hoveringRef = useRef(false);
   const rafRef = useRef(null);
 
   useEffect(() => {
-    const prefersReducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isCoarsePointer =
       typeof window !== "undefined" &&
       window.matchMedia &&
       window.matchMedia("(pointer: coarse)").matches;
 
-    if (prefersReducedMotion || isCoarsePointer) {
+    if (isCoarsePointer) {
       setEnabled(false);
       return undefined;
     }
-
-    setEnabled(true);
 
     const applyStyles = () => {
       const el = cursorRef.current;
