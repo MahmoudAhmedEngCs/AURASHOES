@@ -81,7 +81,7 @@ const Login = () => {
             AURA<span style={{ color: "#7a828e" }}>.KICKS</span>
           </h1>
           <p style={{ opacity: 0.7, margin: 0, fontSize: "1rem" }}>
-            Log in to unlock exclusive liquid drops.
+            You must log in to continue.
           </p>
         </div>
 
