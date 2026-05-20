@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import GameCard from "../components/product/GameCard";
@@ -11,7 +11,14 @@ gsap.registerPlugin(ScrollTrigger);
 const Home = () => {
   const containerRef = useRef(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) return;
+
     const ctx = gsap.context(() => {
       // Hero Animation
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
@@ -144,6 +151,8 @@ const Home = () => {
             subtitle="Retro / Classic"
             speed={0.04}
             className="hero-card hero-card-main"
+            imageLoading="eager"
+            fetchPriority="high"
           />
           <GameCard
             imageSrc="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=800&auto=format&fit=crop"
@@ -151,6 +160,7 @@ const Home = () => {
             subtitle="Limited Edition"
             speed={-0.02}
             className="hero-card hero-card-secondary"
+            imageLoading="lazy"
           />
         </div>
 

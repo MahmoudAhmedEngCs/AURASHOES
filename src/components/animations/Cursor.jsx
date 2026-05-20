@@ -1,53 +1,82 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from "react";
 
 const Cursor = () => {
-  const [position, setPosition] = useState({ x: -100, y: -100 });
-  const [isHovering, setIsHovering] = useState(false);
+  const cursorRef = useRef(null);
+  const positionRef = useRef({ x: -100, y: -100 });
+  const hoveringRef = useRef(false);
+  const rafRef = useRef(null);
 
   useEffect(() => {
+    const applyStyles = () => {
+      const el = cursorRef.current;
+      if (!el) return;
+      const { x, y } = positionRef.current;
+      const isHovering = hoveringRef.current;
+      const size = isHovering ? 48 : 12;
+
+      el.style.width = `${size}px`;
+      el.style.height = `${size}px`;
+      el.style.backgroundColor = isHovering ? "#fff" : "#1a1c1e";
+      el.style.mixBlendMode = isHovering ? "exclusion" : "difference";
+      el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+
+      rafRef.current = null;
+    };
+
+    const scheduleUpdate = () => {
+      if (rafRef.current) return;
+      rafRef.current = window.requestAnimationFrame(applyStyles);
+    };
+
     const handleMouseMove = (e) => {
-      setPosition({ x: e.clientX, y: e.clientY });
+      positionRef.current = { x: e.clientX, y: e.clientY };
+      scheduleUpdate();
     };
 
     const handleMouseOver = (e) => {
-      // Check if we are hovering over an element that should trigger the expanded cursor
-      if (e.target.closest('a, button, .cursor-hover')) {
-        setIsHovering(true);
+      if (e.target.closest("a, button, .cursor-hover")) {
+        hoveringRef.current = true;
+        scheduleUpdate();
       }
     };
 
     const handleMouseOut = (e) => {
-      if (e.target.closest('a, button, .cursor-hover')) {
-        setIsHovering(false);
+      if (e.target.closest("a, button, .cursor-hover")) {
+        hoveringRef.current = false;
+        scheduleUpdate();
       }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseover', handleMouseOver);
-    document.addEventListener('mouseout', handleMouseOut);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    document.addEventListener("mouseover", handleMouseOver, { passive: true });
+    document.addEventListener("mouseout", handleMouseOut, { passive: true });
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseover', handleMouseOver);
-      document.removeEventListener('mouseout', handleMouseOut);
+      window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseover", handleMouseOver);
+      document.removeEventListener("mouseout", handleMouseOut);
+      if (rafRef.current) window.cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
   return (
     <div
+      ref={cursorRef}
       style={{
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
-        width: isHovering ? '48px' : '12px',
-        height: isHovering ? '48px' : '12px',
-        backgroundColor: isHovering ? '#fff' : '#1a1c1e',
-        borderRadius: '50%',
-        pointerEvents: 'none',
+        width: "12px",
+        height: "12px",
+        backgroundColor: "#1a1c1e",
+        borderRadius: "50%",
+        pointerEvents: "none",
         zIndex: 100,
-        transform: `translate(${position.x}px, ${position.y}px) translate(-50%, -50%)`,
-        transition: 'width 0.3s ease, height 0.3s ease, background-color 0.3s ease',
-        mixBlendMode: isHovering ? 'exclusion' : 'difference',
+        transform: "translate(-100px, -100px) translate(-50%, -50%)",
+        transition:
+          "width 0.3s ease, height 0.3s ease, background-color 0.3s ease",
+        mixBlendMode: "difference",
+        willChange: "transform, width, height",
       }}
     />
   );
