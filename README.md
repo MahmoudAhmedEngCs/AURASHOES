@@ -71,3 +71,4 @@ Seed logic lives in `src/services/db.js` and pulls sneaker data from RapidAPI, t
 - `src/context`: app state contexts (Auth, Cart, Wishlist)
 - `src/services`: Firebase + Firestore services
 # AURASHOES
+# AURASHOES
