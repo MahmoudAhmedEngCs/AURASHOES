@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, googleProvider } from '../services/firebase';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import { getAuthInstance } from '../services/firebase';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
@@ -12,25 +11,34 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser({
-          name: currentUser.displayName || currentUser.email.split('@')[0],
-          email: currentUser.email,
-          photoURL: currentUser.photoURL,
-          uid: currentUser.uid
-        });
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
+    let unsubscribe = () => {};
 
-    return unsubscribe;
+    const init = async () => {
+      const { auth } = await getAuthInstance();
+      const { onAuthStateChanged } = await import('firebase/auth');
+      unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        if (currentUser) {
+          setUser({
+            name: currentUser.displayName || currentUser.email.split('@')[0],
+            email: currentUser.email,
+            photoURL: currentUser.photoURL,
+            uid: currentUser.uid
+          });
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      });
+    };
+
+    init();
+    return () => unsubscribe();
   }, []);
 
   const loginWithGoogle = async () => {
     try {
+      const { auth, googleProvider } = await getAuthInstance();
+      const { signInWithPopup } = await import('firebase/auth');
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Error signing in with Google", error);
@@ -40,6 +48,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      const { auth } = await getAuthInstance();
+      const { signOut } = await import('firebase/auth');
       await signOut(auth);
       toast.success('Successfully logged out.');
     } catch (error) {

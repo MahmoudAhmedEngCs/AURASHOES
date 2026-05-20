@@ -1,7 +1,4 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -16,9 +13,32 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
-// Initialize Firebase Authentication and get a reference to the service
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-export const db = getFirestore(app);
+// Lazy-loaded auth and firestore to avoid blocking the critical path
+let _auth = null;
+let _googleProvider = null;
+let _db = null;
+
+export const getAuthInstance = async () => {
+  if (!_auth) {
+    const { getAuth, GoogleAuthProvider } = await import('firebase/auth');
+    _auth = getAuth(app);
+    _googleProvider = new GoogleAuthProvider();
+  }
+  return { auth: _auth, googleProvider: _googleProvider };
+};
+
+export const getDbInstance = async () => {
+  if (!_db) {
+    const { getFirestore } = await import('firebase/firestore');
+    _db = getFirestore(app);
+  }
+  return _db;
+};
+
+// Synchronous getters for already-initialized instances (used after first load)
+export { _auth as auth, _googleProvider as googleProvider, _db as db };
+
+// Initialize eagerly in background so they're ready when needed
+const _initPromise = Promise.all([getAuthInstance(), getDbInstance()]);
+export const firebaseReady = _initPromise;

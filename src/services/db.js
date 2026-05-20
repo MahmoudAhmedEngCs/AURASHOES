@@ -1,25 +1,22 @@
-import { db } from "./firebase";
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  orderBy,
-  limit,
-  startAfter,
-} from "firebase/firestore";
+import { getDbInstance } from "./firebase";
 import toast from "react-hot-toast";
 
 let cachedProducts = null;
+
+// Helper to get firestore functions lazily
+const getFirestoreModules = async () => {
+  const [db, firestoreModule] = await Promise.all([
+    getDbInstance(),
+    import("firebase/firestore"),
+  ]);
+  return { db, ...firestoreModule };
+};
 
 // --- PRODUCTS API ---
 
 export const clearDatabase = async () => {
   try {
+    const { db, collection, getDocs, doc, deleteDoc } = await getFirestoreModules();
     const productsRef = collection(db, "products");
     const snapshot = await getDocs(productsRef);
     const deletePromises = snapshot.docs.map((docSnapshot) =>
@@ -78,6 +75,7 @@ export const seedProducts = async () => {
     await clearDatabase(); // Wipe old data first
     toast.loading("Saving sneakers to Firebase...", { id: "seedToast" });
 
+    const { db, collection, doc, setDoc } = await getFirestoreModules();
     const productsRef = collection(db, "products");
 
     for (const item of items) {
@@ -126,6 +124,7 @@ export const getProducts = async () => {
   if (cachedProducts) return cachedProducts;
 
   try {
+    const { db, collection, getDocs } = await getFirestoreModules();
     const querySnapshot = await getDocs(collection(db, "products"));
     const products = [];
     querySnapshot.forEach((doc) => {
@@ -141,6 +140,7 @@ export const getProducts = async () => {
 
 export const getProductsPage = async (pageSize = 8, lastDoc = null) => {
   try {
+    const { db, collection, getDocs, query, orderBy, limit, startAfter } = await getFirestoreModules();
     const productsRef = collection(db, "products");
     const productsQuery = lastDoc
       ? query(
@@ -177,6 +177,7 @@ export const getProductById = async (id) => {
   }
 
   try {
+    const { db, doc, getDoc } = await getFirestoreModules();
     const docRef = doc(db, "products", id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
@@ -195,6 +196,7 @@ export const getProductById = async (id) => {
 // Create a user document if it doesn't exist, and return their data
 export const getUserData = async (uid) => {
   try {
+    const { db, doc, getDoc, setDoc } = await getFirestoreModules();
     const userRef = doc(db, "users", uid);
     const docSnap = await getDoc(userRef);
 
@@ -214,6 +216,7 @@ export const getUserData = async (uid) => {
 
 export const updateUserCart = async (uid, cartItems) => {
   try {
+    const { db, doc, updateDoc } = await getFirestoreModules();
     const userRef = doc(db, "users", uid);
     await updateDoc(userRef, { cartItems });
   } catch (error) {
@@ -223,6 +226,7 @@ export const updateUserCart = async (uid, cartItems) => {
 
 export const updateUserWishlist = async (uid, wishlistItems) => {
   try {
+    const { db, doc, updateDoc } = await getFirestoreModules();
     const userRef = doc(db, "users", uid);
     await updateDoc(userRef, { wishlistItems });
   } catch (error) {

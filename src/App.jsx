@@ -1,21 +1,19 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
 } from "react-router-dom";
-import Navbar from "./components/layout/Navbar";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { WishlistProvider } from "./context/WishlistContext";
 
 import { Toaster } from "react-hot-toast";
 
+// Lazy load everything non-critical
+const Navbar = React.lazy(() => import("./components/layout/Navbar"));
 const Cursor = React.lazy(() => import("./components/animations/Cursor"));
-const LiquidBackground = React.lazy(
-  () => import("./components/animations/LiquidBackground"),
-);
 
 // Pages
 const Home = React.lazy(() => import("./pages/Home"));
@@ -119,6 +117,36 @@ const PageLoader = ({ text = "LOADING AURA" }) => (
   </div>
 );
 
+// Deferred component that only loads after the page is interactive
+const DeferredLiquidBackground = () => {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    // Wait for page to be fully interactive before loading this 357KB component
+    const timeout = setTimeout(() => {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(() => setShow(true), { timeout: 3000 });
+      } else {
+        setShow(true);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (!show) return null;
+
+  const LiquidBackground = React.lazy(
+    () => import("./components/animations/LiquidBackground"),
+  );
+
+  return (
+    <Suspense fallback={null}>
+      <LiquidBackground />
+    </Suspense>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -139,9 +167,7 @@ function App() {
               <Suspense fallback={null}>
                 <Cursor />
               </Suspense>
-              <Suspense fallback={null}>
-                <LiquidBackground />
-              </Suspense>
+              <DeferredLiquidBackground />
 
               {/* Foreground UI */}
               <div
@@ -154,7 +180,9 @@ function App() {
                   pointerEvents: "none",
                 }}
               >
-                <Navbar />
+                <Suspense fallback={null}>
+                  <Navbar />
+                </Suspense>
 
                 {/* The Routes */}
                 <main id="main-content" style={{ flexGrow: 1, pointerEvents: "auto" }}>
