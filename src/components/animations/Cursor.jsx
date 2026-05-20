@@ -23,13 +23,15 @@ const Cursor = () => {
       if (!el) return;
       const { x, y } = positionRef.current;
       const isHovering = hoveringRef.current;
-      const size = isHovering ? 48 : 12;
 
-      el.style.width = `${size}px`;
-      el.style.height = `${size}px`;
-      el.style.backgroundColor = isHovering ? "#fff" : "#1a1c1e";
-      el.style.mixBlendMode = isHovering ? "exclusion" : "difference";
       el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+      el.style.mixBlendMode = isHovering ? "exclusion" : "difference";
+
+      const innerEl = el.firstElementChild;
+      if (innerEl) {
+        innerEl.style.transform = isHovering ? "scale(4)" : "scale(1)";
+        innerEl.style.backgroundColor = isHovering ? "#fff" : "#1a1c1e";
+      }
 
       rafRef.current = null;
     };
@@ -81,17 +83,25 @@ const Cursor = () => {
         left: 0,
         width: "12px",
         height: "12px",
-        backgroundColor: "#1a1c1e",
-        borderRadius: "50%",
         pointerEvents: "none",
-        zIndex: 100,
+        zIndex: 1000,
         transform: "translate(-100px, -100px) translate(-50%, -50%)",
-        transition:
-          "width 0.3s ease, height 0.3s ease, background-color 0.3s ease",
         mixBlendMode: "difference",
-        willChange: "transform, width, height",
+        willChange: "transform",
       }}
-    />
+    >
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          backgroundColor: "#1a1c1e",
+          borderRadius: "50%",
+          transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease",
+          willChange: "transform, background-color",
+          transform: "scale(1)",
+        }}
+      />
+    </div>
   );
 };
 

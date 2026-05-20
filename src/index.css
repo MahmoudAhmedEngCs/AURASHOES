@@ -1,4 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap");
+/* Tailwind utility replacements */
+.hidden {
+  display: none;
+}
+@media (min-width: 768px) {
+  .md\:inline {
+    display: inline;
+  }
+}
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}
+.pointer-events-auto {
+  pointer-events: auto;
+}
 
 :root {
   --bg-color: #f4f5f7;

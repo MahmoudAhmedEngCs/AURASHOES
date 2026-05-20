@@ -61,14 +61,85 @@ const ProductDetails = () => {
     return (
       <div
         style={{
-          height: "100vh",
+          minHeight: "100vh",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: "2rem",
+          gap: "2rem",
+          pointerEvents: "auto",
         }}
       >
-        Loading Product...
+        <div
+          style={{
+            position: "relative",
+            width: "70px",
+            height: "70px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {/* Outer spinning gradient ring */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: "50%",
+              padding: "3px",
+              background: "conic-gradient(from 0deg, transparent 30%, #7a828e 60%, #1a1c1e 90%, #fff 100%)",
+              WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
+              animation: "spin-loader-prod 1s linear infinite",
+            }}
+          />
+          {/* Inner pulsing liquid dot */}
+          <div
+            style={{
+              width: "16px",
+              height: "16px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #1a1c1e 0%, #7a828e 100%)",
+              boxShadow: "0 0 15px rgba(26, 28, 30, 0.4), 0 0 30px rgba(122, 130, 142, 0.2)",
+              animation: "pulse-loader-prod 1.4s ease-in-out infinite",
+            }}
+          />
+        </div>
+
+        {/* Pulsing gradient text */}
+        <span
+          className="font-syne text-gradient-metal"
+          style={{
+            fontWeight: 800,
+            fontSize: "1.125rem",
+            letterSpacing: "0.4em",
+            textTransform: "uppercase",
+            animation: "text-pulse-loader-prod 1.6s ease-in-out infinite",
+            display: "inline-block",
+            paddingLeft: "0.4em",
+          }}
+        >
+          LOADING SNEAKER
+        </span>
+
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              @keyframes spin-loader-prod {
+                to { transform: rotate(360deg); }
+              }
+              @keyframes pulse-loader-prod {
+                0%, 100% { transform: scale(0.9); opacity: 0.6; }
+                50% { transform: scale(1.25); opacity: 1; }
+              }
+              @keyframes text-pulse-loader-prod {
+                0%, 100% { opacity: 0.4; transform: scale(0.98); }
+                50% { opacity: 0.95; transform: scale(1.02); }
+              }
+            `,
+          }}
+        />
       </div>
     );
   }
