@@ -131,6 +131,8 @@ const ProductDetails = () => {
             src={product.image}
             alt={product.title}
             className="img-metallic"
+            loading="lazy"
+            decoding="async"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </div>

@@ -1,22 +1,39 @@
 import React, { useState, useEffect, useRef } from "react";
 import ProductGridCard from "../components/product/ProductGridCard";
-import { getProducts, seedProducts } from "../services/db";
+import { getProductsPage } from "../services/db";
 import gsap from "gsap";
+
+const PAGE_SIZE = 8;
 
 const Store = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [lastDoc, setLastDoc] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
   const gridRef = useRef(null);
   const titleRef = useRef(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const data = await getProducts();
-      setProducts(data);
+      const data = await getProductsPage(PAGE_SIZE);
+      setProducts(data.products);
+      setLastDoc(data.lastDoc);
+      setHasMore(data.hasMore);
       setLoading(false);
     };
     fetchProducts();
   }, []);
+
+  const handleLoadMore = async () => {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+    const data = await getProductsPage(PAGE_SIZE, lastDoc);
+    setProducts((prev) => [...prev, ...data.products]);
+    setLastDoc(data.lastDoc);
+    setHasMore(data.hasMore);
+    setLoadingMore(false);
+  };
 
   useEffect(() => {
     if (!loading && products.length > 0) {
@@ -109,20 +126,44 @@ const Store = () => {
           ))}
         </div>
       ) : (
-        <div
-          ref={gridRef}
-          className="store-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-            gap: "2.5rem",
-          }}
-        >
-          {products.map((product) => (
-            <div key={product.id} className="product-card-anim">
-              <ProductGridCard product={product} />
+        <div>
+          <div
+            ref={gridRef}
+            className="store-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+              gap: "2.5rem",
+            }}
+          >
+            {products.map((product) => (
+              <div key={product.id} className="product-card-anim">
+                <ProductGridCard product={product} />
+              </div>
+            ))}
+          </div>
+
+          {hasMore && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "3rem",
+              }}
+            >
+              <button
+                type="button"
+                onClick={handleLoadMore}
+                className="btn-chrome cursor-hover"
+                style={{ pointerEvents: "auto" }}
+                disabled={loadingMore}
+              >
+                <div className="btn-chrome-inner">
+                  {loadingMore ? "Loading..." : "Load more"}
+                </div>
+              </button>
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>

@@ -15,6 +15,17 @@ const GameCard = ({
   const cardRef = useRef(null);
 
   useEffect(() => {
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isCoarsePointer =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(pointer: coarse)").matches;
+
+    if (prefersReducedMotion || isCoarsePointer) return undefined;
+
     const card = cardRef.current;
     if (!card) return;
 
@@ -130,4 +141,4 @@ const GameCard = ({
   );
 };
 
-export default GameCard;
+export default React.memo(GameCard);

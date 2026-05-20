@@ -1,12 +1,29 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const Cursor = () => {
+  const [enabled, setEnabled] = useState(false);
   const cursorRef = useRef(null);
   const positionRef = useRef({ x: -100, y: -100 });
   const hoveringRef = useRef(false);
   const rafRef = useRef(null);
 
   useEffect(() => {
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isCoarsePointer =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(pointer: coarse)").matches;
+
+    if (prefersReducedMotion || isCoarsePointer) {
+      setEnabled(false);
+      return undefined;
+    }
+
+    setEnabled(true);
+
     const applyStyles = () => {
       const el = cursorRef.current;
       if (!el) return;
@@ -58,6 +75,8 @@ const Cursor = () => {
       if (rafRef.current) window.cancelAnimationFrame(rafRef.current);
     };
   }, []);
+
+  if (!enabled) return null;
 
   return (
     <div

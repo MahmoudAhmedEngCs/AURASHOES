@@ -1,22 +1,26 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import paper from "paper";
 
 const LiquidBackground = () => {
+  const [enabled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const prefersReducedMotion =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const connection = navigator.connection || null;
+    const saveData = Boolean(connection && connection.saveData);
+    return !(prefersReducedMotion || saveData);
+  });
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!enabled || !canvasRef.current) return;
 
     let idleId = null;
     let timeoutId = null;
     let cleanup = () => {};
 
     const start = () => {
-      const prefersReducedMotion =
-        typeof window !== "undefined" &&
-        window.matchMedia &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
       paper.setup(canvasRef.current);
 
       const path = new paper.Path();
@@ -52,56 +56,47 @@ const LiquidBackground = () => {
         mousePos = new paper.Point(e.clientX, e.clientY);
       };
 
-      if (!prefersReducedMotion) {
-        window.addEventListener("mousemove", handleMouseMove, {
-          passive: true,
-        });
-      }
+      window.addEventListener("mousemove", handleMouseMove, {
+        passive: true,
+      });
 
-      if (!prefersReducedMotion) {
-        paper.view.onFrame = function (event) {
-          const time = event.time;
-          const driftCenter = center.add(
-            new paper.Point(
-              Math.sin(time * 0.5) * 50,
-              Math.cos(time * 0.4) * 50,
-            ),
+      paper.view.onFrame = function (event) {
+        const time = event.time;
+        const driftCenter = center.add(
+          new paper.Point(Math.sin(time * 0.5) * 50, Math.cos(time * 0.4) * 50),
+        );
+
+        for (let i = 0; i < segments; i++) {
+          const segment = path.segments[i];
+
+          const angle = (i / segments) * Math.PI * 2;
+          const sine = Math.sin(time * 1.5 + i * 1.2);
+          const offset = sine * 20;
+
+          const basePoint = driftCenter.add(
+            new paper.Point({
+              angle: (angle * 180) / Math.PI,
+              length: radius + offset,
+            }),
           );
 
-          for (let i = 0; i < segments; i++) {
-            const segment = path.segments[i];
+          const vector = segment.point.subtract(mousePos);
+          const distance = vector.length;
 
-            const angle = (i / segments) * Math.PI * 2;
-            const sine = Math.sin(time * 1.5 + i * 1.2);
-            const offset = sine * 20;
+          const effectRadius = 250;
 
-            const basePoint = driftCenter.add(
-              new paper.Point({
-                angle: (angle * 180) / Math.PI,
-                length: radius + offset,
-              }),
-            );
-
-            const vector = segment.point.subtract(mousePos);
-            const distance = vector.length;
-
-            const effectRadius = 250;
-
-            if (distance < effectRadius) {
-              const force = (effectRadius - distance) / effectRadius;
-              const push = vector.normalize().multiply(force * 40);
-              segment.point = segment.point.add(push.multiply(0.1));
-            }
-
-            const springForce = basePoint
-              .subtract(segment.point)
-              .multiply(0.04);
-            segment.point = segment.point.add(springForce);
+          if (distance < effectRadius) {
+            const force = (effectRadius - distance) / effectRadius;
+            const push = vector.normalize().multiply(force * 40);
+            segment.point = segment.point.add(push.multiply(0.1));
           }
 
-          path.smooth({ type: "continuous" });
-        };
-      }
+          const springForce = basePoint.subtract(segment.point).multiply(0.04);
+          segment.point = segment.point.add(springForce);
+        }
+
+        path.smooth({ type: "continuous" });
+      };
 
       paper.view.onResize = function () {
         path.position = paper.view.center;
@@ -112,9 +107,7 @@ const LiquidBackground = () => {
       };
 
       cleanup = () => {
-        if (!prefersReducedMotion) {
-          window.removeEventListener("mousemove", handleMouseMove);
-        }
+        window.removeEventListener("mousemove", handleMouseMove);
         paper.project.clear();
       };
     };
@@ -132,7 +125,9 @@ const LiquidBackground = () => {
       if (timeoutId) window.clearTimeout(timeoutId);
       cleanup();
     };
-  }, []);
+  }, [enabled]);
+
+  if (!enabled) return null;
 
   return (
     <canvas
@@ -145,7 +140,7 @@ const LiquidBackground = () => {
         width: "100%",
         height: "100%",
         zIndex: 0,
-        pointerEvents: "auto",
+        pointerEvents: "none",
       }}
       data-paper-resize="true"
     />
